@@ -1,0 +1,85 @@
+<apex:page >
+
+    <script type="text/javascript">__sfdcSessionId = '{!$Api.Session_Id}';</script>
+    <script src="../../soap/ajax/30.0/connection.js" type="text/javascript"></script>
+
+    <script language="JavaScript">
+
+        function uploadContentVersion(filename, filecontent) {
+            var contentVersion          = new sforce.SObject('ContentVersion');
+            contentVersion.pathOnClient = filename;
+            // Set origin to 'C' if uploading to content 
+            // and set the FirstPublishLocationId to either a UserId or ContentWorkspaceId
+            contentVersion.origin       = 'H'; 
+            contentVersion.VersionData  = filecontent;
+            var results = sforce.connection.create([contentVersion]);
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].getBoolean("success")) {
+                    alert('New ContentVersion record created:' + results[i].id);
+                }
+                else {
+                    alert('Failed:' + results[i]);
+
+                }
+            }
+        }
+
+        function fileSelected() {
+            var file = document.getElementById('fileToUpload').files[0];
+            if (file) {
+                var fileSize = 0;
+                if (file.size > (36 * 1024 * 1024)) {
+                    alert('File too large, greater than 36MB');
+                    return;
+                }
+                if (file.size > 1024 * 1024)
+                    fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+                else
+                    fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
+
+                document.getElementById('fileName').innerHTML = 'Name: ' + file.name;
+                document.getElementById('fileSize').innerHTML = 'Size: ' + fileSize;
+                document.getElementById('fileType').innerHTML = 'Type: ' + file.type;
+            }
+        }
+
+        function uploadFile() {
+            var file = document.getElementById('fileToUpload').files[0];
+            var reader = new FileReader();
+            reader.onload = loaded;
+            reader.onerror = errorHandler;
+            reader.readAsDataURL(file);           
+        }
+
+        function loaded(evt) {
+            var filename = document.getElementById('fileToUpload').files[0].name;
+            var fileContent = String(evt.target.result);
+            fileContent = fileContent.substr(fileContent.indexOf(',') + 1);
+            uploadContentVersion(filename, fileContent);  
+        }
+
+        function errorHandler(evt) {
+            if (evt.target.error.name == 'NotReadableError') {
+                alert('File could not be read');
+            }
+            else {
+                alert(evt.target.error);
+            }
+        }
+
+</script>
+
+    <title>Upload Files using XMLHttpRequest - Minimal</title>
+    <form id="form1" enctype="multipart/form-data" method="post">
+        <div class="row">
+          <label for="fileToUpload">Select a File to Upload</label><br />
+          <input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();"/>
+        </div>
+        <div id="fileName"></div>
+        <div id="fileSize"></div>
+        <div id="fileType"></div>
+        <div class="row">
+            <input type="button" onclick="uploadFile()" value="Upload" />
+        </div>
+  </form>
+</apex:page>

@@ -1,0 +1,9 @@
+<!-- 
+* Description: Page to Attach files to an account.
+* Attribute: objectId - The ID of the record uploaded documents will be attached to.
+* Date: 10/13/2012
+* Author: José Luis Almazán.
+-->
+<apex:page standardController="Account">
+    <c:FileUpload objectId="{!$CurrentPage.parameters.id}"/>
+</apex:page>
