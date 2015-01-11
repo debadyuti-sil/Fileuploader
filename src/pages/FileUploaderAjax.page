@@ -75,10 +75,7 @@ td.fileRow  input {
     function uploadFile(parentId)
         {
           
-          
-           // var input = $('.fileInput')[0];
-            //var input = document.getElementById("file-input");
-           // var filesToUpload = input.files;
+
            
             $("input[type=file]").each(function(){
                
